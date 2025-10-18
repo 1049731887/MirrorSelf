@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
-    "log"
+	"io"
+	"log"
 	"os"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -28,16 +29,18 @@ func main() {
 				"error": "Cannot parse JSON",
 			})
 		}
-		
+
 		log.Printf("Received meal: %s\n", req.Meal)
-		// 将 req.Meal 存储到数据库或文件的逻辑
-		file, err := os.OpenFile("meals.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		if err != nil {
-			panic(err)
-		}
-		
+
 		return c.JSON(Response{Status: "recorded"})
 	})
 
+	// 将 req.Meal 存储到文件的逻辑
+	file, err := os.OpenFile("meals.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		panic(err)
+	}
+	multi := io.MultiWriter(os.Stdout, file)
+	log.SetOutput(multi)
 	app.Listen(":3001")
 }
