@@ -1,0 +1,37 @@
+# air.toml — 后端热重载配置
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  # 输出可执行文件路径
+  bin = "tmp/backend.exe"
+  # 构建命令
+  cmd = "go build -o tmp/backend.exe ."
+  # 是否延迟构建（毫秒）
+  delay = 100
+  # 构建日志颜色
+  color = "cyan"
+
+[log]
+  time = true
+
+[run]
+  # Windows 环境下，使用 PowerShell 安全执行
+  cmd = "powershell -Command \"Start-Process -FilePath 'tmp/backend.exe' -Wait -NoNewWindow\""
+  # 如果希望直接运行而非新进程，可改成：
+  # cmd = "./tmp/backend.exe"
+
+[env]
+  # 环境变量可根据需要加
+  PORT = "8080"
+  GO_ENV = "development"
+
+[watch]
+  # 监视的目录
+  includes = ["."]
+  excludes = [
+    "tmp",
+    "vendor",
+    "node_modules",
+    "frontend",
+  ]
