@@ -8,8 +8,15 @@ export default defineConfig({
     port: 5173,                // 默认端口，可以改
     strictPort: true,          // 端口被占用时报错
     cors: true,                // 允许跨域
+    allowedHosts: ['.zdzd.xyz'], // 允许的域名
     hmr: {
-      host: 'mirrorself.zdzd.xyz',  // 热更新使用你的域名
+      host: undefined
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001', // 代理目标地址
+        changeOrigin: true,
+      }
     }
   }
 })
