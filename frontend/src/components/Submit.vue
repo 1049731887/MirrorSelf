@@ -10,12 +10,18 @@ defineProps({
 const message = useMessage();
 const meal = ref("");
 const mealInput = ref("");
+const mealShow = ref("");
 
 onMounted(() => {
   meal.value = localStorage.getItem("lastMeal") || "";
 });
 
 function submit() {
+  // 消息计数
+  if (msgSoMany()) {
+    return;
+  }
+
   // 非空检测
   if (mealInput.value.trim() === "") {
     message.error("饿死我算了，啥都不给我吃");
@@ -30,6 +36,7 @@ function submit() {
 
 async function submitMeal() {
   let result = ref("");
+  let subing = message.loading("提交中...", { duration: 0 });
   try {
     const res = await postMeal(meal.value);
     console.log("Server response:", res);
@@ -38,12 +45,32 @@ async function submitMeal() {
     result.value = "提交失败";
   }
   if (result.value == "recorded") {
+    mealShow.value = meal.value;
     console.log("Meal submitted successfully");
     localStorage.setItem("lastMeal", meal.value);
     message.success("提交成功！");
   } else {
     alert("提交失败，错误信息：" + result.value);
   }
+  subing.destroy();
+}
+
+let submitCount = 0;
+setInterval(() => {
+  submitCount--;
+  if (submitCount < 0) submitCount = 0;
+}, 2000);
+setInterval(() => {
+  submitCount = 1;
+}, 60000);
+function msgSoMany() {
+  console.log("Submit count:", submitCount);
+  if (submitCount >= 5) {
+    message.warning("再玩就玩坏啦！");
+    return true;
+  }
+  submitCount++;
+  return false;
 }
 </script>
 
@@ -61,7 +88,7 @@ async function submitMeal() {
     <n-button type="primary" @click="submit" id="submitBtn">投！</n-button>
 
     <div class="menu">
-      <span class="meal">{{ meal }}</span>
+      <span class="meal">{{ mealShow }}</span>
     </div>
   </div>
 </template>
