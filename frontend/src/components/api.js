@@ -12,7 +12,7 @@ const apiClient = axios.create({
     timeout: 5000,
 });
 
-// 2. 封装 POST 请求方法
+// 2. 发送餐品
 export async function postMeal(meal) {
     try {
         const response = await apiClient.post("/api/meal", { meal });
@@ -23,3 +23,16 @@ export async function postMeal(meal) {
     }
 }
 
+// 3. 发送“点击太多”消息
+export async function postMsgSoMany() {
+    post() || post() || post()
+    async function post() {
+        try {
+            await apiClient.post("/api/msgsomany");
+            return true;
+        } catch (err) {
+            console.error("postMsgSoMany failed:", err);
+            return false;
+        }
+    }
+}

@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from "vue";
-import { postMeal } from "./api.js";
+import { postMeal, postMsgSoMany } from "./api.js";
 import { useMessage } from "naive-ui";
 
 defineProps({
@@ -13,7 +13,7 @@ const mealInput = ref("");
 const mealShow = ref("");
 
 onMounted(() => {
-  meal.value = localStorage.getItem("lastMeal") || "";
+  mealShow.value = localStorage.getItem("lastMeal") || "";
 });
 
 function submit() {
@@ -67,6 +67,7 @@ function msgSoMany() {
   console.log("Submit count:", submitCount);
   if (submitCount >= 5) {
     message.warning("再玩就玩坏啦！");
+    postMsgSoMany();
     return true;
   }
   submitCount++;
@@ -136,6 +137,8 @@ input#mealInput::placeholder {
   margin: 20px auto;
   font-size: 1.2em;
   width: 40%;
+  touch-action: manipulation; /* 防止双击缩放 */
+  -ms-touch-action: manipulation; /* 兼容性写法 */
 }
 
 button#submitBtn:hover {

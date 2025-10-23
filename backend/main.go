@@ -67,6 +67,11 @@ func main() {
 		return c.JSON(Response{Status: "recorded"})
 	})
 
+	app.Post("/api/msgsomany", func(c *fiber.Ctx) error {
+		logger.Info("Someone click the button so many times~")
+		return c.SendStatus(fiber.StatusOK)
+	})
+
 	if err := app.Listen(":3001"); err != nil {
 		logger.Fatal("Server failed", zap.Error(err))
 	}
