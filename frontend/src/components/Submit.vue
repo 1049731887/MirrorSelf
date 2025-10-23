@@ -13,44 +13,38 @@ const mealInput = ref("");
 const mealShow = ref("");
 
 onMounted(() => {
-  mealShow.value = localStorage.getItem("lastMeal") || "";
+  // mealShow.value = localStorage.getItem("lastMeal") || "";
 });
 
 function submit() {
-  // 消息计数
-  if (msgSoMany()) {
-    return;
-  }
+  if (msgSoMany()) return;
 
-  // 非空检测
   if (mealInput.value.trim() === "") {
     message.error("饿死我算了，啥都不给我吃");
     return;
   }
 
-  console.log("Submitted meal:", mealInput.value);
   meal.value = mealInput.value;
   mealInput.value = "";
   submitMeal();
 }
 
 async function submitMeal() {
-  let result = ref("");
-  let subing = message.loading("提交中...", { duration: 0 });
+  let result = "";
+  const subing = message.loading("提交中...", { duration: 0 });
   try {
     const res = await postMeal(meal.value);
-    console.log("Server response:", res);
-    result.value = res.status || "unknown";
+    result = res.status || "unknown";
   } catch (err) {
-    result.value = "提交失败";
+    result = "提交失败";
   }
-  if (result.value == "recorded") {
+  if (result == "recorded") {
     mealShow.value = meal.value;
     console.log("Meal submitted successfully");
     localStorage.setItem("lastMeal", meal.value);
     message.success("提交成功！");
   } else {
-    alert("提交失败，错误信息：" + result.value);
+    alert("提交失败，错误信息：" + result);
   }
   subing.destroy();
 }
@@ -76,29 +70,31 @@ function msgSoMany() {
 </script>
 
 <template>
-  <div class="submit">
-    <h2 id="msg">{{ msg }}</h2>
-    <input
-      @keyup.enter="submit"
-      v-model="mealInput"
-      type="text"
-      placeholder="在此处输入菜品或外卖链接"
-      id="mealInput"
-      style="font-family: initial"
-    />
-    <n-button type="primary" @click="submit" id="submitBtn">投！</n-button>
+  <transition-group name="fade-slide" tag="div" class="submit">
+    <h2 id="msg" key="msg">{{ msg }}</h2>
 
-    <div class="menu">
+    <div class="input-block" key="input">
+      <input
+        @keyup.enter="submit"
+        v-model="mealInput"
+        type="text"
+        placeholder="在此处输入菜品或外卖链接"
+        id="mealInput"
+        style="font-family: initial"
+      />
+      <n-button type="primary" @click="submit" id="submitBtn">投！</n-button>
+    </div>
+
+    <div v-if="mealShow !== ''" class="menu" key="menu">
       <span class="meal">{{ mealShow }}</span>
     </div>
-  </div>
+  </transition-group>
 </template>
 
 <style scoped>
 .submit {
   font-size: medium;
 }
-/* 标题样式 */
 h2#msg {
   text-align: center;
   font-size: 2em;
@@ -106,11 +102,10 @@ h2#msg {
   margin-top: 20px;
 }
 
-/* 输入框样式 */
 input#mealInput {
-  width: 100%; /* 调整宽度为 100% */
-  max-width: 400px; /* 设置最大宽度，防止过宽 */
-  padding: 12px 20px; /* 增加内边距 */
+  width: 100%;
+  max-width: 400px;
+  padding: 12px 20px;
   font-size: 1.2em;
   margin: 20px auto;
   display: block;
@@ -119,39 +114,32 @@ input#mealInput {
   outline: none;
   box-sizing: border-box;
 }
-
-/* 输入框获取焦点时的样式 */
 input#mealInput:focus {
   border-color: #007bff;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
-
-/* placeholder 样式 */
 input#mealInput::placeholder {
-  color: #aaa; /* 设置 placeholder 文字颜色 */
-  font-style: italic; /* 可选：让 placeholder 文字为斜体 */
+  color: #aaa;
+  font-style: italic;
 }
-
-/* 按钮样式 */
 #submitBtn {
   margin: 20px auto;
   font-size: 1.2em;
   width: 40%;
-  touch-action: manipulation; /* 防止双击缩放 */
-  -ms-touch-action: manipulation; /* 兼容性写法 */
+  touch-action: manipulation;
+  -ms-touch-action: manipulation;
 }
-
 button#submitBtn:hover {
   background-color: #0056b3;
 }
 
-/* 菜单样式 */
+/* 菜单 */
 .menu {
   margin-top: 30px;
   text-align: center;
+  min-height: 40px;
 }
-
-span.meal {
+.meal {
   font-size: 1.5em;
   color: #333;
   font-weight: bold;
@@ -160,5 +148,26 @@ span.meal {
   border-radius: 10px;
   border: 1px solid #ddd;
   display: inline-block;
+  transform-origin: center;
 }
+
+/* 动画部分（核心） */
+.fade-slide-move {
+  transition: transform 0.4s ease;
+}
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.4s ease;
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+}
+.fade-slide-enter-to,
+.fade-slide-leave-from {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
 </style>
