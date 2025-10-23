@@ -2,7 +2,6 @@
 // import HelloWorld from "./components/HelloWorld.vue";
 // import mmain from "./components/mmain.vue";
 import Submit from "./components/Submit.vue";
-
 </script>
 
 <template>
@@ -16,7 +15,9 @@ import Submit from "./components/Submit.vue";
   </div> -->
   <!-- <HelloWorld msg="Vite + Vue" /> -->
   <!-- <mmain msg="Welcome!" /> -->
-  <Submit msg="投喂：" />
+  <n-message-provider>
+    <Submit msg="投喂：" />
+  </n-message-provider>
 </template>
 
 <style scoped>
