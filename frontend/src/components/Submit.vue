@@ -19,13 +19,15 @@ onMounted(() => {
   mealInputRef1.value?.focus();
   setTimeout(() => {
     mealShow.value = localStorage.getItem("lastMeal") || "";
-    if (mealShow.value !== "") {
-      setTimeout(() => {
-        animationRemoved.value = true;
-      }, 2000);
-    }
+    if (mealShow.value !== "") closeAnimation(); // 如果有上次的餐品，直接关闭动画
   }, 500);
 });
+
+function closeAnimation() {
+  setTimeout(() => {
+    animationRemoved.value = true;
+  }, 1000);
+}
 
 function submit() {
   if (msgSoMany()) return;
@@ -54,9 +56,7 @@ async function submitMeal() {
     console.log("Meal submitted successfully");
     localStorage.setItem("lastMeal", meal.value);
     message.success("提交成功！");
-    setTimeout(() => {
-      animationRemoved.value = true;
-    }, 3000);
+    closeAnimation();
   } else {
     alert("提交失败，错误信息：" + result);
   }
