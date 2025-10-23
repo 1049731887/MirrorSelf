@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { nextTick, onMounted, ref, watch } from "vue";
 import { postMeal, postMsgSoMany } from "./api.js";
 import { useMessage } from "naive-ui";
 
@@ -11,9 +11,20 @@ const message = useMessage();
 const meal = ref("");
 const mealInput = ref("");
 const mealShow = ref("");
+const animationRemoved = ref(false);
+const mealInputRef1 = ref(null);
+const mealInputRef2 = ref(null);
 
 onMounted(() => {
-  // mealShow.value = localStorage.getItem("lastMeal") || "";
+  mealInputRef1.value?.focus();
+  setTimeout(() => {
+    mealShow.value = localStorage.getItem("lastMeal") || "";
+    if (mealShow.value !== "") {
+      setTimeout(() => {
+        animationRemoved.value = true;
+      }, 2000);
+    }
+  }, 500);
 });
 
 function submit() {
@@ -43,6 +54,9 @@ async function submitMeal() {
     console.log("Meal submitted successfully");
     localStorage.setItem("lastMeal", meal.value);
     message.success("提交成功！");
+    setTimeout(() => {
+      animationRemoved.value = true;
+    }, 3000);
   } else {
     alert("提交失败，错误信息：" + result);
   }
@@ -67,10 +81,20 @@ function msgSoMany() {
   submitCount++;
   return false;
 }
+
+watch(animationRemoved, async () => {
+  await nextTick();
+  mealInputRef2.value?.focus();
+});
 </script>
 
 <template>
-  <transition-group name="fade-slide" tag="div" class="submit">
+  <transition-group
+    v-if="!animationRemoved"
+    name="fade-slide"
+    tag="div"
+    class="submit"
+  >
     <h2 id="msg" key="msg">{{ msg }}</h2>
 
     <div class="input-block" key="input">
@@ -81,6 +105,7 @@ function msgSoMany() {
         placeholder="在此处输入菜品或外卖链接"
         id="mealInput"
         style="font-family: initial"
+        ref="mealInputRef1"
       />
       <n-button type="primary" @click="submit" id="submitBtn">投！</n-button>
     </div>
@@ -89,6 +114,26 @@ function msgSoMany() {
       <span class="meal">{{ mealShow }}</span>
     </div>
   </transition-group>
+
+  <!-- 🚀 动画被删除后使用普通 div -->
+  <div v-else class="submit">
+    <h2 id="msg">{{ msg }}</h2>
+    <div class="input-block">
+      <input
+        ref="mealInputRef2"
+        @keyup.enter="submit"
+        v-model="mealInput"
+        type="text"
+        placeholder="在此处输入菜品或外卖链接"
+        id="mealInput"
+        style="font-family: initial"
+      />
+      <n-button type="primary" @click="submit" id="submitBtn">投！</n-button>
+    </div>
+    <div v-if="mealShow !== ''" class="menu">
+      <span class="meal">{{ mealShow }}</span>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -149,6 +194,13 @@ button#submitBtn:hover {
   border: 1px solid #ddd;
   display: inline-block;
   transform-origin: center;
+
+  /* 自动换行CSS */
+  white-space: normal; /* 允许正常换行 */
+  word-wrap: break-word; /* 遇长单词或链接时换行 */
+  word-break: break-all; /* 实在太长时强制断行 */
+  max-width: 90%; /* 限制最大宽度（可调），防止太宽 */
+  text-align: left; /* 让多行看起来更自然（可选） */
 }
 
 /* 动画部分（核心） */
@@ -169,5 +221,4 @@ button#submitBtn:hover {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
-
 </style>
