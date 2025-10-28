@@ -143,7 +143,7 @@ watch(animationRemoved, async () => {
 h2#msg {
   text-align: center;
   font-size: 2em;
-  color: #d8d8d8;
+  color: #313131;
   margin-top: 20px;
 }
 
