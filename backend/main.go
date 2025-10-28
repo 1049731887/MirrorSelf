@@ -1,9 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"strings"
+
+	"mirrorself/backend/pb"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/proxy"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -43,10 +48,14 @@ func initLogger() *zap.Logger {
 
 func main() {
 	app := fiber.New()
+	pb.StartPocketBase()
 	logger := initLogger()
 	defer logger.Sync()
 
-	app.Post("/api/meal", func(c *fiber.Ctx) error {
+	app.Static("/", "./frontend/dist")
+
+	api := app.Group("/api")
+	api.Post("/meal", func(c *fiber.Ctx) error {
 		type Request struct {
 			Meal string `json:"meal"`
 		}
@@ -67,9 +76,16 @@ func main() {
 		return c.JSON(Response{Status: "recorded"})
 	})
 
-	app.Post("/api/msgsomany", func(c *fiber.Ctx) error {
+	api.Post("/msgsomany", func(c *fiber.Ctx) error {
 		logger.Info("Someone click the button so many times~")
 		return c.SendStatus(fiber.StatusOK)
+	})
+
+	app.All("/db/*", func(c *fiber.Ctx) error {
+		targetPath := strings.TrimPrefix(c.OriginalURL(), "/db")
+		target := "http://127.0.0.1:8090" + targetPath
+		fmt.Println(target)
+		return proxy.Do(c, target)
 	})
 
 	if err := app.Listen(":3001"); err != nil {
