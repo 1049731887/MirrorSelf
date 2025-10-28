@@ -13,7 +13,7 @@ export default defineConfig({
       host: undefined
     },
     proxy: {
-      '/api': {
+      '^/(api|db)': {
         target: 'http://localhost:3001', // 代理目标地址
         changeOrigin: true,
       }
