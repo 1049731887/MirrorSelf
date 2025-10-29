@@ -23,7 +23,6 @@ COPY --from=backend-builder /app/app .
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 COPY backend/pb ./backend/pb
 COPY backend/pb_data ./backend/pb_data
-COPY backend/tmp ./backend/tmp
 
 # 仅暴露 3001（Go 服务）
 EXPOSE 3001
