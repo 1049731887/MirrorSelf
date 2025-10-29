@@ -48,6 +48,10 @@ async function submitMeal() {
   const subing = message.loading("提交中...", { duration: 0 });
   try {
     const res = await postMeal(meal.value);
+    const record = await pb.collection("meals").create({
+      meal: meal.value,
+    });
+    console.log("写入数据库：" , record);
     result = res.status || "unknown";
   } catch (err) {
     result = "提交失败";
