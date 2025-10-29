@@ -2,6 +2,7 @@
 import { nextTick, onMounted, ref, watch } from "vue";
 import { postMeal, postMsgSoMany } from "./api.js";
 import { useMessage } from "naive-ui";
+import { pb } from "/src/lib/pb.js";
 
 defineProps({
   msg: String,
@@ -86,6 +87,26 @@ watch(animationRemoved, async () => {
   await nextTick();
   mealInputRef2.value?.focus();
 });
+// testDb();
+// async function testDb() {
+//   // 📝 写入一条数据
+//   const record = await pb.collection("notes").create({
+//     content: "这是我写入的第一条笔记",
+//   });
+//   console.log("写入成功：", record);
+
+//   // 📖 读取所有数据
+//   const records = await pb.collection("notes").getFullList();
+//   console.log("所有笔记：", records);
+
+//   // ✏️ 更新
+//   await pb.collection("notes").update(record.id, {
+//     content: "修改后的内容",
+//   });
+
+//   // 🗑️ 删除
+//   // await pb.collection("notes").delete(record.id);
+// }
 </script>
 
 <template>

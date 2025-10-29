@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -52,7 +51,7 @@ func main() {
 	logger := initLogger()
 	defer logger.Sync()
 
-	app.Static("/", "./frontend/dist")
+	app.Static("/", "../frontend/dist")
 
 	api := app.Group("/api")
 	api.Post("/meal", func(c *fiber.Ctx) error {
@@ -82,9 +81,7 @@ func main() {
 	})
 
 	app.All("/db/*", func(c *fiber.Ctx) error {
-		targetPath := strings.TrimPrefix(c.OriginalURL(), "/db")
-		target := "http://127.0.0.1:8090" + targetPath
-		fmt.Println(target)
+		target := "http://127.0.0.1:8090" + strings.TrimPrefix(c.OriginalURL(), "/db") // PocketBase 地址，原请求去除/db前缀
 		return proxy.Do(c, target)
 	})
 
